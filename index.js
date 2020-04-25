@@ -9,6 +9,9 @@ const app = express();
 // Use bodyparser middleware for json parsing
 app.use(express.json());
 
+// Use static middleware to serve static files
+app.use(express.static());
+
 // Use cors middleware to prevent cors issue in frontend
 app.use(cors());
 
