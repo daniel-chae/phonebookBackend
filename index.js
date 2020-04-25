@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 
 // Use static middleware to serve static files
-app.use(express.static());
+app.use(express.static("build"));
 
 // Use cors middleware to prevent cors issue in frontend
 app.use(cors());
