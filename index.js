@@ -1,16 +1,16 @@
 // Set environment variables
-if (process.env !== "production") {
-  const dotenv = require("dotenv");
-  dotenv.config({ path: "./config.env" });
+if (process.env !== 'production') {
+  const dotenv = require('dotenv');
+  dotenv.config({ path: './config.env' });
 }
 
 // Import external modules
-const express = require("express");
-const morgan = require("morgan");
-const cors = require("cors");
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
 
 // Import internal modules
-const Person = require("./modules/person");
+const Person = require('./modules/person');
 
 // Create an web app
 const app = express();
@@ -19,21 +19,21 @@ const app = express();
 app.use(express.json());
 
 // Use static middleware to serve static files
-app.use(express.static("build"));
+app.use(express.static('build'));
 
 // Use cors middleware to prevent cors issue in frontend
 app.use(cors());
 
 // Use morgan to log reqeust status
-morgan.token("request-body", (req, res) => JSON.stringify(req.body));
+morgan.token('request-body', (req, res) => JSON.stringify(req.body));
 app.use(
   morgan(
-    ":method :url :status :res[content-length] - :response-time ms :request-body"
+    ':method :url :status :res[content-length] - :response-time ms :request-body'
   )
 );
 
 // Handle get request for resources
-app.get("/api/persons", (req, res, next) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({})
     .then((persons) => {
       res.json(persons.map((person) => person.toJSON()));
@@ -42,7 +42,7 @@ app.get("/api/persons", (req, res, next) => {
 });
 
 // Handle get request for phonebook info
-app.get("/info", (req, res, next) => {
+app.get('/info', (req, res, next) => {
   Person.find({})
     .then((persons) => {
       res.send(
@@ -53,7 +53,7 @@ app.get("/info", (req, res, next) => {
 });
 
 // Handle get request for an individual resource
-app.get("/api/persons/:id", (req, res, next) => {
+app.get('/api/persons/:id', (req, res, next) => {
   Person.findById(req.params.id)
     .then((person) => {
       if (person) {
@@ -66,16 +66,16 @@ app.get("/api/persons/:id", (req, res, next) => {
 });
 
 // Handle delete request to delete a resource
-app.delete("/api/persons/:id", (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
-    .then((person) => {
+    .then(() => {
       res.status(204).end();
     })
     .catch((err) => next(err));
 });
 
 // Handle post request to create a resource
-app.post("/api/persons/", (req, res, next) => {
+app.post('/api/persons/', (req, res, next) => {
   const name = req.body.name;
   const number = req.body.number;
 
@@ -87,7 +87,7 @@ app.post("/api/persons/", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-app.put("/api/persons/:id", (req, res, next) => {
+app.put('/api/persons/:id', (req, res, next) => {
   const person = {
     name: req.body.name,
     number: req.body.number,
@@ -96,7 +96,7 @@ app.put("/api/persons/:id", (req, res, next) => {
   Person.findByIdAndUpdate(req.params.id, person, {
     new: true,
     runValidators: true,
-    context: "query",
+    context: 'query',
   })
     .then((updatedPerson) => {
       if (updatedPerson) {
@@ -111,12 +111,15 @@ app.put("/api/persons/:id", (req, res, next) => {
 // Define Error handling middleware
 const errorHandler = (err, req, res, next) => {
   console.log(err.message);
-  if (err.name === "CastError") {
-    return res.status(400).send({ error: "malformatted id" });
-  } else if (err.name === "ValidationError") {
-    return res.status(400).send({ error: err.message });
+  if (err.name === 'CastError') {
+    res.status(400).send({ error: 'malformatted id' });
+  } else if (err.name === 'ValidationError') {
+    res.status(400).send({ error: err.message });
+  } else if (err.name === 'example') {
+    res.status(400).send({ error: err.message });
+  } else {
+    next(err);
   }
-  next(err);
 };
 
 // Use ErrorHandler middleware
